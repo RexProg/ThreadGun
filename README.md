@@ -92,5 +92,5 @@ Install as [NuGet package](https://www.nuget.org/packages/ThreadGun):
 Package manager:
 
 ```powershell
-Install-Package Telegram.Bot
+Install-Package ThreadGun
 ```
