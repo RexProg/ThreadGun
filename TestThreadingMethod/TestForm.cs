@@ -98,8 +98,25 @@ Input :
 
         public void ActionThreadPool(object i)
         {
-            lstThreadPoolResult.Items.Add($@"> {i} <");
-            Application.DoEvents();
+            try
+            {
+                if (i == (object) NumCount)
+                    lblInfoThreadPool.Text = $@"Item Count : {lstThreadPoolResult.Items.Count}";
+                lstThreadPoolResult.Items.Add($@"> {i} <");
+                Application.DoEvents();
+                if (i == (object) 250)
+                    throw new Exception("ExceptionOccurred Test!");
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show($@"Exception Occurred!!!
+
+Message :
+{exception.Message}
+
+Input :
+{i}");
+            }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
