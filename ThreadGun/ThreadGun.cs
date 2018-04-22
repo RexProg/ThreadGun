@@ -22,8 +22,11 @@ namespace ThreadGun
         private readonly int _threadCount;
         private bool _completed;
 
-        public ThreadGun(Action<T> start, IEnumerable<T> inputs, int threadCount)
+        public ThreadGun(Action<T> start, IEnumerable<T> inputs, int threadCount,
+            CompletedDelegate completedEvent = null, ExceptionOccurredDelegate exceptionOccurredEvent = null)
         {
+            Completed += completedEvent;
+            ExceptionOccurred += exceptionOccurredEvent;
             _threadCount = threadCount;
             _magazine = new List<Action>();
             var enumerable = inputs as T[] ?? inputs.ToArray();

@@ -41,9 +41,9 @@ namespace TestThreadingMethod
         {
             _processCompeleted = false;
             lstThreadGunResult.Items.Clear();
-            var tg = new ThreadGun<int>(ActionThreadGun, Enumerable.Range(1, NumCount), 20);
+            var tg = new ThreadGun<int>(ActionThreadGun, Enumerable.Range(1, NumCount), 20,
+                exceptionOccurredEvent: tg_ExceptionOccurred);
             tg.Completed += tg_Completed;
-            tg.ExceptionOccurred += tg_ExceptionOccurred;
             tg.Start();
             new Thread(() =>
             {
