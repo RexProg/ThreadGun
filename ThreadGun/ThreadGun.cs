@@ -19,11 +19,10 @@ namespace ThreadGun
 
         private readonly List<Thread> _activeThreads = new List<Thread>();
         private readonly IEnumerable<T> _inputs;
-
-        private readonly object _lockObject = new object();
+        
         private readonly int _threadCount;
         private bool _completed;
-        private List<Action> _magazine;
+        private Stack<Action> _magazine;
 
         public ThreadGun(Action<T> action, IEnumerable<T> inputs, int threadCount,
             CompletedDelegate completedEvent = null, ExceptionOccurredDelegate exceptionOccurredEvent = null)
@@ -45,7 +44,7 @@ namespace ThreadGun
 
         public void Start()
         {
-            _magazine = new List<Action>();
+            _magazine = new Stack<Action>();
             var enumerable = _inputs as T[] ?? _inputs.ToArray();
             foreach (var input in enumerable)
             {
@@ -62,16 +61,10 @@ namespace ThreadGun
 
                     try
                     {
-                        Action nextAction;
-                        lock (_lockObject)
-                        {
-                            nextAction = _magazine[0];
-                            while (!_magazine.Remove(nextAction)) nextAction = _magazine[_magazine.Count / 2];
-                        }
-
-                        (nextAction ?? _magazine[0])?.Invoke();
+                        var nextAction = _magazine.Pop();
+                        nextAction.Invoke();
                     }
-                    catch (ArgumentOutOfRangeException)
+                    catch (InvalidOperationException)
                     {
                         if (!_completed)
                         {
@@ -94,16 +87,10 @@ namespace ThreadGun
 
                     try
                     {
-                        Action nextAction;
-                        lock (_lockObject)
-                        {
-                            nextAction = _magazine[0];
-                            while (!_magazine.Remove(nextAction)) nextAction = _magazine[_magazine.Count / 2];
-                        }
-
-                        (nextAction ?? _magazine[0])?.Invoke();
+                        var nextAction = _magazine.Pop();
+                        nextAction.Invoke();
                     }
-                    catch (ArgumentOutOfRangeException)
+                    catch (InvalidOperationException)
                     {
                         if (!_completed)
                         {
@@ -121,20 +108,14 @@ namespace ThreadGun
                 }
 
                 if (ExceptionOccurred == null)
-                    _magazine.Add(ExceptionMismanagementAction);
+                    _magazine.Push(ExceptionMismanagementAction);
                 else
-                    _magazine.Add(ExceptionManagementAction);
+                    _magazine.Push(ExceptionManagementAction);
             }
 
             for (var i = 0; i < _threadCount; i++)
             {
-                Action action;
-                lock (_lockObject)
-                {
-                    action = _magazine[_magazine.Count / 2];
-                    _magazine.Remove(action);
-                }
-
+                var action = _magazine.Pop();
                 var thread = new Thread(() => action());
                 _activeThreads.Add(thread);
                 thread.Start();
