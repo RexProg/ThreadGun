@@ -9,7 +9,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ThreadGun")]
-[assembly: AssemblyDescription("ThreadGun is a form of multithreading created for developers keen on building fast and stable application.")]
+[assembly:
+    AssemblyDescription(
+        "ThreadGun is a form of multithreading created for developers keen on building fast and stable application.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("RexProg")]
 [assembly: AssemblyProduct("ThreadGun")]

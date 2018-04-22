@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 #endregion
@@ -14,6 +15,8 @@ namespace ThreadGun
 
         public delegate void ExceptionOccurredDelegate(IEnumerable<T> inputs, Exception exception);
 
+        private readonly List<Thread> _activeThreads = new List<Thread>();
+
         private readonly object _lockObject = new object();
         private readonly List<Action> _magazine;
         private readonly int _threadCount;
@@ -23,7 +26,8 @@ namespace ThreadGun
         {
             _threadCount = threadCount;
             _magazine = new List<Action>();
-            foreach (var input in inputs)
+            var enumerable = inputs as T[] ?? inputs.ToArray();
+            foreach (var input in enumerable)
                 _magazine.Add(() =>
                 {
                     try
@@ -32,7 +36,7 @@ namespace ThreadGun
                     }
                     catch (Exception ex)
                     {
-                        ExceptionOccurred?.Invoke(inputs, ex);
+                        ExceptionOccurred?.Invoke(enumerable, ex);
                     }
 
                     try
@@ -55,13 +59,18 @@ namespace ThreadGun
                             {
                                 if (!_completed)
                                 {
-                                    Completed?.Invoke(inputs);
+                                    Completed?.Invoke(enumerable);
                                     _completed = true;
                                 }
                             }
                         }
                     }
                 });
+        }
+
+        public int ActiveThread
+        {
+            get { return _activeThreads.Count(t => t.IsAlive); }
         }
 
         public event CompletedDelegate Completed;
@@ -78,7 +87,9 @@ namespace ThreadGun
                     _magazine.Remove(action);
                 }
 
-                new Thread(() => action()).Start();
+                var thread = new Thread(() => action());
+                _activeThreads.Add(thread);
+                thread.Start();
             }
         }
     }

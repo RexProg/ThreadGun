@@ -14,6 +14,7 @@ namespace TestThreadingMethod
     public partial class TestForm : Form
     {
         private const int NumCount = 20000;
+        private bool _processCompeleted;
 
         public TestForm()
         {
@@ -38,11 +39,20 @@ namespace TestThreadingMethod
 
         private void btnThreadGun_Click(object sender, EventArgs e)
         {
+            _processCompeleted = false;
             lstThreadGunResult.Items.Clear();
             var tg = new ThreadGun<int>(ActionThreadGun, Enumerable.Range(1, NumCount), 20);
             tg.Completed += tg_Completed;
             tg.ExceptionOccurred += tg_ExceptionOccurred;
             tg.Start();
+            new Thread(() =>
+            {
+                while (!_processCompeleted)
+                {
+                    lblActiveThreadCount.Text = $@"Active Thread Count : {tg.ActiveThread}";
+                    Thread.Sleep(1000);
+                }
+            }).Start();
         }
 
         private void tg_ExceptionOccurred(IEnumerable<int> inputs, Exception exception)
@@ -53,6 +63,7 @@ namespace TestThreadingMethod
         private void tg_Completed(object inputs)
         {
             lblInfoThreadGun.Text = $@"Item Count : {lstThreadGunResult.Items.Count}";
+            _processCompeleted = true;
         }
 
         private void btnThreadPool_Click(object sender, EventArgs e)
