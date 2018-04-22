@@ -13,7 +13,7 @@ namespace ThreadGun
     {
         public delegate void CompletedDelegate(IEnumerable<T> inputs);
 
-        public delegate void ExceptionOccurredDelegate(IEnumerable<T> inputs, Exception exception);
+        public delegate void ExceptionOccurredDelegate(IEnumerable<T> inputs, T input, Exception exception);
 
         private readonly List<Thread> _activeThreads = new List<Thread>();
 
@@ -36,7 +36,7 @@ namespace ThreadGun
                     }
                     catch (Exception ex)
                     {
-                        ExceptionOccurred?.Invoke(enumerable, ex);
+                        ExceptionOccurred?.Invoke(enumerable, input, ex);
                     }
 
                     try

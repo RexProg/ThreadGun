@@ -55,9 +55,15 @@ namespace TestThreadingMethod
             }).Start();
         }
 
-        private void tg_ExceptionOccurred(IEnumerable<int> inputs, Exception exception)
+        private void tg_ExceptionOccurred(IEnumerable<int> inputs, int input, Exception exception)
         {
-            MessageBox.Show(exception.Message);
+            MessageBox.Show($@"Exception Occurred!!!
+
+Message :
+{exception.Message}
+
+Input :
+{input}");
         }
 
         private void tg_Completed(object inputs)
