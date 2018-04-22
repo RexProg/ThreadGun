@@ -100,11 +100,11 @@ Input :
         {
             try
             {
-                if ((int)i == NumCount)
+                if ((int) i == NumCount)
                     lblInfoThreadPool.Text = $@"Item Count : {lstThreadPoolResult.Items.Count}";
                 lstThreadPoolResult.Items.Add($@"> {i} <");
                 Application.DoEvents();
-                if ((int)i == 250)
+                if ((int) i == 250)
                     throw new Exception("ExceptionOccurred Test!");
             }
             catch (Exception exception)

@@ -16,10 +16,8 @@ namespace ThreadGun
         public delegate void ExceptionOccurredDelegate(IEnumerable<T> inputs, T input, Exception exception);
 
         private readonly Action<T> _action;
-
         private readonly List<Thread> _activeThreads = new List<Thread>();
         private readonly IEnumerable<T> _inputs;
-        
         private readonly int _threadCount;
         private bool _completed;
         private Stack<Action> _magazine;
