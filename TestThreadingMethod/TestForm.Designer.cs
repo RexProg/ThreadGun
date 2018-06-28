@@ -39,7 +39,6 @@
             this.lstThread = new System.Windows.Forms.ListBox();
             this.btnRefresh = new System.Windows.Forms.Button();
             this.lblInfoThread = new System.Windows.Forms.Label();
-            this.lblActiveThreadCount = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnNormal
@@ -57,7 +56,7 @@
             this.lstThreadGunResult.FormattingEnabled = true;
             this.lstThreadGunResult.Location = new System.Drawing.Point(12, 43);
             this.lstThreadGunResult.Name = "lstThreadGunResult";
-            this.lstThreadGunResult.Size = new System.Drawing.Size(206, 212);
+            this.lstThreadGunResult.Size = new System.Drawing.Size(206, 225);
             this.lstThreadGunResult.TabIndex = 1;
             // 
             // lblInfoThreadGun
@@ -143,21 +142,11 @@
             this.lblInfoThread.TabIndex = 13;
             this.lblInfoThread.Text = "Item Count : 0";
             // 
-            // lblActiveThreadCount
-            // 
-            this.lblActiveThreadCount.AutoSize = true;
-            this.lblActiveThreadCount.Location = new System.Drawing.Point(13, 258);
-            this.lblActiveThreadCount.Name = "lblActiveThreadCount";
-            this.lblActiveThreadCount.Size = new System.Drawing.Size(120, 13);
-            this.lblActiveThreadCount.TabIndex = 14;
-            this.lblActiveThreadCount.Text = "Active Thread Count : 0";
-            // 
             // TestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(651, 343);
-            this.Controls.Add(this.lblActiveThreadCount);
             this.Controls.Add(this.lblInfoThread);
             this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.lstThread);
@@ -191,7 +180,6 @@
         private System.Windows.Forms.ListBox lstThread;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Label lblInfoThread;
-        private System.Windows.Forms.Label lblActiveThreadCount;
     }
 }
 

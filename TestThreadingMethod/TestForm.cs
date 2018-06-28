@@ -14,12 +14,10 @@ namespace TestThreadingMethod
     public partial class TestForm : Form
     {
         private const int NumCount = 20000;
-        private bool _processCompeleted;
 
         public TestForm()
         {
             InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false;
         }
 
         private void btnNormal_Click(object sender, EventArgs e)
@@ -39,23 +37,16 @@ namespace TestThreadingMethod
 
         private void btnThreadGun_Click(object sender, EventArgs e)
         {
-            _processCompeleted = false;
             lstThreadGunResult.Items.Clear();
-            var tg = new ThreadGun<int>(ActionThreadGun, Enumerable.Range(1, NumCount), 20,
-                exceptionOccurredEvent: tg_ExceptionOccurred);
+            var tg = new ThreadGun<int>((Action<int>) ActionThreadGun, Enumerable.Range(1, NumCount), 20,
+                tg_ExceptionOccurred);
             tg.Completed += tg_Completed;
+            tg.FillingMagazine();
             tg.Start();
-            new Thread(() =>
-            {
-                while (!_processCompeleted)
-                {
-                    lblActiveThreadCount.Text = $@"Active Thread Count : {tg.ActiveThread}";
-                    Thread.Sleep(1000);
-                }
-            }).Start();
         }
 
-        private void tg_ExceptionOccurred(IEnumerable<int> inputs, int input, Exception exception)
+        private void tg_ExceptionOccurred(ThreadGun<int> gun, IEnumerable<int> inputs, object input,
+            Exception exception)
         {
             MessageBox.Show($@"Exception Occurred!!!
 
@@ -63,13 +54,12 @@ Message :
 {exception.Message}
 
 Input :
-{input}");
+{(int) input}");
         }
 
         private void tg_Completed(object inputs)
         {
-            lblInfoThreadGun.Text = $@"Item Count : {lstThreadGunResult.Items.Count}";
-            _processCompeleted = true;
+            MessageBox.Show(@"ThreadGun Process Completed!");
         }
 
         private void btnThreadPool_Click(object sender, EventArgs e)
@@ -83,14 +73,21 @@ Input :
 
         public void ActionThread(int i)
         {
-            lstThreadGunResult.Items.Add($@"> {i} <");
-            lblInfoThread.Text = $@"Item Count : {lstThread.Items.Count}";
+            Invoke(new MethodInvoker(delegate
+            {
+                lstThreadGunResult.Items.Add($@"> {i} <");
+                lblInfoThread.Text = $@"Item Count : {lstThread.Items.Count}";
+            }));
             Application.DoEvents();
         }
 
         public void ActionThreadGun(int i)
         {
-            lstThreadGunResult.Items.Add($@"> {i} <");
+            Invoke(new MethodInvoker(delegate
+            {
+                lstThreadGunResult.Items.Add($@"> {i} <");
+                lblInfoThreadGun.Text = $@"Item Count : {lstThreadGunResult.Items.Count}";
+            }));
             Application.DoEvents();
             if (i == 250)
                 throw new Exception("ExceptionOccurred Test!");
@@ -101,8 +98,12 @@ Input :
             try
             {
                 if ((int) i == NumCount)
+                    MessageBox.Show(@"ThreadPool Process Completed!");
+                Invoke(new MethodInvoker(delegate
+                {
+                    lstThreadPoolResult.Items.Add($@"> {i} <");
                     lblInfoThreadPool.Text = $@"Item Count : {lstThreadPoolResult.Items.Count}";
-                lstThreadPoolResult.Items.Add($@"> {i} <");
+                }));
                 Application.DoEvents();
                 if ((int) i == 250)
                     throw new Exception("ExceptionOccurred Test!");

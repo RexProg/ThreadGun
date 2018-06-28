@@ -2,10 +2,11 @@
 ThreadGun is a form of multithreading created for developers keen on building fast and stable application.
 
 # Features
-- Easy [Installation](https://github.com/RexProg/ThreadGun#Installation) using [NuGet](http://nuget.org/packages/ThreadGun)
-- Optimum perfomance
+- support async method
 - will be notify when exception occurred
 - will be notify when process completed
+- Optimum perfomance
+- Easy [Installation](https://github.com/RexProg/ThreadGun#Installation) using [NuGet](http://nuget.org/packages/ThreadGun)
 
 # ThreadPool vs ThreadGun
 - ThreadGun is more accurate than ThreadPool
@@ -26,7 +27,7 @@ private void btnThreadGun_Click(object sender, EventArgs e)
     var tg = new ThreadGun<int>(ActionThreadGun, Enumerable.Range(1, 50000), 20);
     tg.Completed += tg_Completed;
     tg.ExceptionOccurred += tg_ExceptionOccurred;
-    tg.Start();
+	tg.FillingMagazine().Start();
 }
 private void tg_ExceptionOccurred(IEnumerable<int> inputs, Exception exception)
 {
@@ -34,14 +35,18 @@ private void tg_ExceptionOccurred(IEnumerable<int> inputs, Exception exception)
 }
 private void tg_Completed(object inputs)
 {
-    lblInfoThreadGun.Text = $@"Item Count : {lstThreadGunResult.Items.Count}";
+    MessageBox.Show(@"ThreadGun Process Completed!");
 }
 public void ActionThreadGun(int i)
 {
-    lstThreadGunResult.Items.Add($@"> {i} <");
-    Application.DoEvents();
-    if (i == 250)
-      throw new Exception("ExceptionOccurred Test!");
+    Invoke(new MethodInvoker(delegate ()
+    {
+		lstThreadGunResult.Items.Add($@"> {i} <");
+        lblInfoThreadGun.Text = $@"Item Count : {lstThreadGunResult.Items.Count}";
+    }));
+	Application.DoEvents();
+	if (i == 250)
+		throw new Exception("ExceptionOccurred Test!");
 }
 ```
 If you have a method with more than one parameter, you can put the parameters in another class and change method's input type to it.
@@ -51,7 +56,10 @@ For Example :
 ```csharp
 public void ActionThreadGun(int i,int j)
 {
-    lstThreadGunResult.Items.Add($@"> {i} , {j} <");
+    Invoke(new MethodInvoker(delegate ()
+    {
+		lstThreadGunResult.Items.Add($@"> {i} , {j} <");
+    }));
     Application.DoEvents();
     if (i == 250)
       throw new Exception("ExceptionOccurred Test!");
@@ -61,7 +69,10 @@ Change it to :
 ```csharp
 public void ActionThreadGun(Point p)
 {
-    lstThreadGunResult.Items.Add($@"> {p.i} , {p.j} <");
+    Invoke(new MethodInvoker(delegate ()
+    {
+		lstThreadGunResult.Items.Add($@"> {p.i} , {p.j} <");
+    }));
     Application.DoEvents();
     if (p.i == 250)
       throw new Exception("ExceptionOccurred Test!");
@@ -73,16 +84,27 @@ public class Point
 }
 ```
 ```csharp
-new ThreadGun<Point>(ActionThreadGun, new List<Point>() { new Point() { i = 20, j = 40 } }, 20);
+new ThreadGun<Point>((Action<Point>)ActionThreadGun, new List<Point>() { new Point() { i = 20, j = 40 } }, 20);
 ```
 
 # Usage
 ```csharp
-new ThreadGun<T>(Action, IEnumerable<T>, ThreadCount)
+new ThreadGun<T>((Action<T>)ActionByParameter, IEnumerable<T>, ThreadCount)
+```
+or
+```csharp
+new ThreadGun<T>(Func, IEnumerable<T>, ThreadCount)
+```
+or
+```csharp
+new ThreadGun<T>(Action, MagazineCount, ThreadCount)
 ```
 - T is type of inputs
-- Action is the method that you want to invoke and type of that method's parameter is T
+- ActionByParameter is the method that you want to invoke and type of that method's parameter is T
+- Action(WithoutParameter) is the method that you want to invoke
+- Func is the async method that you want to invoke and type of that method's parameter is T
 - IEnumerable<T> is your input which type of that is T
+- MagazineCount is count of method executed
 - ThreadCount is count of thread executed action at same time
 
 # Installation
