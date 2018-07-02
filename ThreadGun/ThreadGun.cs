@@ -26,11 +26,11 @@ namespace ThreadGun
         private readonly IEnumerable<T> _inputs;
         private readonly int _magazineCount;
         private readonly int _threadCount;
-        private int _waitingPeriod;
-        private Action _waitingCompletedAction;
+        private List<Task> _activeTasks = new List<Task>();
         private int _completed;
         private Stack<Action> _magazine;
-        private List<Task> _activeTasks = new List<Task>();
+        private Action _waitingCompletedAction;
+        private int _waitingPeriod;
 
         public ThreadGun(Func<T, Task> func, IEnumerable<T> inputs, int threadCount,
             CompletedDelegate completedEvent, ExceptionOccurredDelegate exceptionOccurredEvent)
@@ -114,15 +114,22 @@ namespace ThreadGun
         public event CompletedDelegate Completed;
         public event ExceptionOccurredDelegate ExceptionOccurred;
 
+        public void Join()
+        {
+            CompletedTask();
+        }
+
         public void Wait(int millisecond)
         {
             _waitingPeriod = millisecond;
         }
-        public void Wait(int millisecond,Action completeAction)
+
+        public void Wait(int millisecond, Action completeAction)
         {
             _waitingPeriod = millisecond;
             _waitingCompletedAction = completeAction;
         }
+
         public ThreadGun<T> FillingMagazine(T input)
         {
             if (_action != null) throw new Exception("Action parameters not set");
@@ -186,6 +193,7 @@ namespace ThreadGun
                         _waitingPeriod = 0;
                         _waitingCompletedAction?.Invoke();
                     }
+
                     try
                     {
                         _magazine.Pop()?.Invoke();
@@ -226,6 +234,7 @@ namespace ThreadGun
                     _waitingPeriod = 0;
                     _waitingCompletedAction?.Invoke();
                 }
+
                 try
                 {
                     _magazine.Pop()?.Invoke();
@@ -264,6 +273,7 @@ namespace ThreadGun
                     _waitingPeriod = 0;
                     _waitingCompletedAction?.Invoke();
                 }
+
                 try
                 {
                     _magazine.Pop()?.Invoke();
@@ -307,6 +317,7 @@ namespace ThreadGun
                             _waitingPeriod = 0;
                             _waitingCompletedAction?.Invoke();
                         }
+
                         try
                         {
                             _magazine.Pop()?.Invoke();
@@ -342,6 +353,7 @@ namespace ThreadGun
                         _waitingPeriod = 0;
                         _waitingCompletedAction?.Invoke();
                     }
+
                     try
                     {
                         _magazine.Pop()?.Invoke();
@@ -382,6 +394,7 @@ namespace ThreadGun
                             _waitingPeriod = 0;
                             _waitingCompletedAction?.Invoke();
                         }
+
                         try
                         {
                             _magazine.Pop()?.Invoke();
@@ -433,7 +446,7 @@ namespace ThreadGun
             }
         }
 
-        public void Start()
+        public ThreadGun<T> Start()
         {
             if (_magazine.Count == 0) throw new Exception("Fill the magazine first");
             for (var i = 0; i < _threadCount; i++)
@@ -452,7 +465,9 @@ namespace ThreadGun
                 thread.Start();
             }
 
-            new Thread(CompletedTask).Start();
+            if (Completed != null)
+                new Thread(CompletedTask).Start();
+            return this;
         }
     }
 }

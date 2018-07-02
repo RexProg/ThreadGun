@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreadGun", "ThreadGun\Thre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestThreadingMethod", "TestThreadingMethod\TestThreadingMethod.csproj", "{8C72AD07-E7CD-4B63-8FF4-3A1978E66793}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProxyGather", "ProxyGather\ProxyGather.csproj", "{B3CC8AF1-141A-4FD8-B62B-4A268C5EAF3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{8C72AD07-E7CD-4B63-8FF4-3A1978E66793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C72AD07-E7CD-4B63-8FF4-3A1978E66793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C72AD07-E7CD-4B63-8FF4-3A1978E66793}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3CC8AF1-141A-4FD8-B62B-4A268C5EAF3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3CC8AF1-141A-4FD8-B62B-4A268C5EAF3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3CC8AF1-141A-4FD8-B62B-4A268C5EAF3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3CC8AF1-141A-4FD8-B62B-4A268C5EAF3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

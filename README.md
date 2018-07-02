@@ -6,6 +6,7 @@ ThreadGun is a form of multithreading created for developers keen on building fa
 - Will be notify when exception occurred
 - Will be notify when process completed
 - Postpone the process
+- Join to process
 - Optimum perfomance
 - Easy [Installation](https://github.com/RexProg/ThreadGun#Installation) using [NuGet](http://nuget.org/packages/ThreadGun)
 
@@ -17,7 +18,8 @@ ThreadGun is a form of multithreading created for developers keen on building fa
 
 # Examples
 + See the [Example project](https://github.com/RexProg/ThreadGun/tree/master/TestThreadingMethod).
-+ See the [SiteBruteForcer](https://github.com/RexProg/SiteBruteForcer)
++ See the [SiteBruteForcer](https://github.com/RexProg/SiteBruteForcer).
++ See the [ProxyGather](https://github.com/RexProg/ThreadGun/tree/master/ProxyGather).
 
 # Getting Started
 First, add ThreadGun to your project using [NuGet](https://github.com/RexProg/ThreadGun#Installation).
