@@ -26,9 +26,11 @@ namespace ThreadGun
         private readonly IEnumerable<T> _inputs;
         private readonly int _magazineCount;
         private readonly int _threadCount;
-        private List<Task> _activeTasks = new List<Task>();
+        private int _waitingPeriod;
+        private Action _waitingCompletedAction;
         private int _completed;
         private Stack<Action> _magazine;
+        private List<Task> _activeTasks = new List<Task>();
 
         public ThreadGun(Func<T, Task> func, IEnumerable<T> inputs, int threadCount,
             CompletedDelegate completedEvent, ExceptionOccurredDelegate exceptionOccurredEvent)
@@ -112,6 +114,15 @@ namespace ThreadGun
         public event CompletedDelegate Completed;
         public event ExceptionOccurredDelegate ExceptionOccurred;
 
+        public void Wait(int millisecond)
+        {
+            _waitingPeriod = millisecond;
+        }
+        public void Wait(int millisecond,Action completeAction)
+        {
+            _waitingPeriod = millisecond;
+            _waitingCompletedAction = completeAction;
+        }
         public ThreadGun<T> FillingMagazine(T input)
         {
             if (_action != null) throw new Exception("Action parameters not set");
@@ -131,6 +142,13 @@ namespace ThreadGun
                         {
                             ExceptionOccurred?.Invoke(this, enumerable, input, ex);
                         }
+
+                    if (_waitingPeriod != 0)
+                    {
+                        Thread.Sleep(_waitingPeriod);
+                        _waitingPeriod = 0;
+                        _waitingCompletedAction?.Invoke();
+                    }
 
                     try
                     {
@@ -162,6 +180,12 @@ namespace ThreadGun
                             ExceptionOccurred?.Invoke(this, enumerable, input, ex);
                         }
 
+                    if (_waitingPeriod != 0)
+                    {
+                        Thread.Sleep(_waitingPeriod);
+                        _waitingPeriod = 0;
+                        _waitingCompletedAction?.Invoke();
+                    }
                     try
                     {
                         _magazine.Pop()?.Invoke();
@@ -196,6 +220,12 @@ namespace ThreadGun
                         ExceptionOccurred?.Invoke(this, null, null, ex);
                     }
 
+                if (_waitingPeriod != 0)
+                {
+                    Thread.Sleep(_waitingPeriod);
+                    _waitingPeriod = 0;
+                    _waitingCompletedAction?.Invoke();
+                }
                 try
                 {
                     _magazine.Pop()?.Invoke();
@@ -228,6 +258,12 @@ namespace ThreadGun
                         ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                     }
 
+                if (_waitingPeriod != 0)
+                {
+                    Thread.Sleep(_waitingPeriod);
+                    _waitingPeriod = 0;
+                    _waitingCompletedAction?.Invoke();
+                }
                 try
                 {
                     _magazine.Pop()?.Invoke();
@@ -265,6 +301,12 @@ namespace ThreadGun
                                 ExceptionOccurred?.Invoke(this, enumerable, input, ex);
                             }
 
+                        if (_waitingPeriod != 0)
+                        {
+                            Thread.Sleep(_waitingPeriod);
+                            _waitingPeriod = 0;
+                            _waitingCompletedAction?.Invoke();
+                        }
                         try
                         {
                             _magazine.Pop()?.Invoke();
@@ -294,6 +336,12 @@ namespace ThreadGun
                             ExceptionOccurred?.Invoke(this, null, null, ex);
                         }
 
+                    if (_waitingPeriod != 0)
+                    {
+                        Thread.Sleep(_waitingPeriod);
+                        _waitingPeriod = 0;
+                        _waitingCompletedAction?.Invoke();
+                    }
                     try
                     {
                         _magazine.Pop()?.Invoke();
@@ -328,6 +376,12 @@ namespace ThreadGun
                                 ExceptionOccurred?.Invoke(this, enumerable, input, ex);
                             }
 
+                        if (_waitingPeriod != 0)
+                        {
+                            Thread.Sleep(_waitingPeriod);
+                            _waitingPeriod = 0;
+                            _waitingCompletedAction?.Invoke();
+                        }
                         try
                         {
                             _magazine.Pop()?.Invoke();

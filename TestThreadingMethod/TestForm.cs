@@ -14,6 +14,7 @@ namespace TestThreadingMethod
     public partial class TestForm : Form
     {
         private const int NumCount = 20000;
+        private ThreadGun<int> _tg;
 
         public TestForm()
         {
@@ -38,11 +39,11 @@ namespace TestThreadingMethod
         private void btnThreadGun_Click(object sender, EventArgs e)
         {
             lstThreadGunResult.Items.Clear();
-            var tg = new ThreadGun<int>((Action<int>) ActionThreadGun, Enumerable.Range(1, NumCount), 20,
+            _tg = new ThreadGun<int>((Action<int>) ActionThreadGun, Enumerable.Range(1, NumCount), 20,
                 tg_ExceptionOccurred);
-            tg.Completed += tg_Completed;
-            tg.FillingMagazine();
-            tg.Start();
+            _tg.Completed += tg_Completed;
+            _tg.FillingMagazine();
+            _tg.Start();
         }
 
         private void tg_ExceptionOccurred(ThreadGun<int> gun, IEnumerable<int> inputs, object input,
@@ -91,6 +92,11 @@ Input :
             Application.DoEvents();
             if (i == 250)
                 throw new Exception("ExceptionOccurred Test!");
+            //if (i == 500)
+            //{
+            //    MessageBox.Show(@"I'll wait ten minutes");
+            //    _tg.Wait(10 * 60 * 1000, () => MessageBox.Show(@"I continue process"));
+            //}
         }
 
         public void ActionThreadPool(object i)

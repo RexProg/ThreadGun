@@ -2,9 +2,10 @@
 ThreadGun is a form of multithreading created for developers keen on building fast and stable application.
 
 # Features
-- support async method
-- will be notify when exception occurred
-- will be notify when process completed
+- Support async method
+- Will be notify when exception occurred
+- Will be notify when process completed
+- Postpone the process
 - Optimum perfomance
 - Easy [Installation](https://github.com/RexProg/ThreadGun#Installation) using [NuGet](http://nuget.org/packages/ThreadGun)
 
