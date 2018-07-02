@@ -16,7 +16,8 @@ ThreadGun is a form of multithreading created for developers keen on building fa
 ![dotTrace](dotTrace.png)
 
 # Examples
-See the [Example project](https://github.com/RexProg/ThreadGun/tree/master/TestThreadingMethod).
++ See the [Example project](https://github.com/RexProg/ThreadGun/tree/master/TestThreadingMethod).
++ See the [SiteBruteForcer](https://github.com/RexProg/SiteBruteForcer)
 
 # Getting Started
 First, add ThreadGun to your project using [NuGet](https://github.com/RexProg/ThreadGun#Installation).
