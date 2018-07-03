@@ -68,7 +68,7 @@ namespace ProxyGather
         private static void SaveProxies()
         {
             var file = new StreamWriter("proxylist.txt");
-            foreach (var proxy in ProxyList)
+            foreach (var proxy in ProxyList.Distinct())
                 file.WriteLine(proxy);
             file.Close();
             Console.WriteLine("Saved!");
