@@ -132,8 +132,7 @@ namespace ThreadGun
 
         public ThreadGun<T> FillingMagazine(T input)
         {
-            if (_action != null) throw new Exception("Action parameters not set");
-            var enumerable = _inputs as T[] ?? _inputs.ToArray();
+            if (_action != null) throw new Exception("This action doesn't have input");
             if (_actionT != null)
             {
                 void Action()
@@ -147,7 +146,7 @@ namespace ThreadGun
                         }
                         catch (Exception ex)
                         {
-                            ExceptionOccurred?.Invoke(this, enumerable, input, ex);
+                            ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                         }
 
                     if (_waitingPeriod != 0)
@@ -184,7 +183,7 @@ namespace ThreadGun
                         }
                         catch (Exception ex)
                         {
-                            ExceptionOccurred?.Invoke(this, enumerable, input, ex);
+                            ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                         }
 
                     if (_waitingPeriod != 0)
@@ -294,8 +293,7 @@ namespace ThreadGun
             _magazine = new Stack<Action>();
             if (_actionT != null)
             {
-                var enumerable = _inputs as T[] ?? _inputs.ToArray();
-                foreach (var input in enumerable)
+                foreach (var input in _inputs)
                 {
                     void Action()
                     {
@@ -308,7 +306,7 @@ namespace ThreadGun
                             }
                             catch (Exception ex)
                             {
-                                ExceptionOccurred?.Invoke(this, enumerable, input, ex);
+                                ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                             }
 
                         if (_waitingPeriod != 0)
@@ -369,8 +367,7 @@ namespace ThreadGun
             }
             else if (_func != null)
             {
-                var enumerable = _inputs as T[] ?? _inputs.ToArray();
-                foreach (var input in enumerable)
+                foreach (var input in _inputs)
                 {
                     async void AsyncAction()
                     {
@@ -385,7 +382,7 @@ namespace ThreadGun
                             }
                             catch (Exception ex)
                             {
-                                ExceptionOccurred?.Invoke(this, enumerable, input, ex);
+                                ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                             }
 
                         if (_waitingPeriod != 0)
