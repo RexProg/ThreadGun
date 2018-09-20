@@ -1,6 +1,7 @@
 ﻿#region using
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -19,7 +20,6 @@ namespace ThreadGun
 
         private readonly Action _action;
         private readonly Action<T> _actionT;
-
         private readonly object _activeTasksLock = new object();
         private readonly List<Thread> _activeThreads = new List<Thread>();
         private readonly Func<T, Task> _func;
@@ -27,8 +27,9 @@ namespace ThreadGun
         private readonly int _magazineCount;
         private readonly int _threadCount;
         private List<Task> _activeTasks = new List<Task>();
+
         private int _completed;
-        private Stack<Action> _magazine;
+        private ConcurrentStack<Action> _magazine;
         private Action _waitingCompletedAction;
         private int _waitingPeriod;
 
@@ -158,9 +159,10 @@ namespace ThreadGun
 
                     try
                     {
-                        _magazine.Pop()?.Invoke();
+                        _magazine.TryPop(out var action);
+                        action.Invoke();
                     }
-                    catch (InvalidOperationException)
+                    catch (NullReferenceException)
                     {
                         _completed = 1;
                     }
@@ -195,9 +197,10 @@ namespace ThreadGun
 
                     try
                     {
-                        _magazine.Pop()?.Invoke();
+                        _magazine.TryPop(out var action);
+                        action.Invoke();
                     }
-                    catch (InvalidOperationException)
+                    catch (NullReferenceException)
                     {
                         _completed = 1;
                     }
@@ -236,9 +239,10 @@ namespace ThreadGun
 
                 try
                 {
-                    _magazine.Pop()?.Invoke();
+                    _magazine.TryPop(out var action);
+                    action.Invoke();
                 }
-                catch (InvalidOperationException)
+                catch (NullReferenceException)
                 {
                     _completed = 1;
                 }
@@ -275,9 +279,10 @@ namespace ThreadGun
 
                 try
                 {
-                    _magazine.Pop()?.Invoke();
+                    _magazine.TryPop(out var act);
+                    act.Invoke();
                 }
-                catch (InvalidOperationException)
+                catch (NullReferenceException)
                 {
                     _completed = 1;
                 }
@@ -290,7 +295,7 @@ namespace ThreadGun
 
         public ThreadGun<T> FillingMagazine()
         {
-            _magazine = new Stack<Action>();
+            _magazine = new ConcurrentStack<Action>();
             if (_actionT != null)
             {
                 foreach (var input in _inputs)
@@ -318,9 +323,10 @@ namespace ThreadGun
 
                         try
                         {
-                            _magazine.Pop()?.Invoke();
+                            _magazine.TryPop(out var action);
+                            action.Invoke();
                         }
-                        catch (InvalidOperationException)
+                        catch (NullReferenceException)
                         {
                             _completed = 1;
                         }
@@ -354,9 +360,10 @@ namespace ThreadGun
 
                     try
                     {
-                        _magazine.Pop()?.Invoke();
+                        _magazine.TryPop(out var action);
+                        action.Invoke();
                     }
-                    catch (InvalidOperationException)
+                    catch (NullReferenceException)
                     {
                         _completed = 1;
                     }
@@ -394,9 +401,10 @@ namespace ThreadGun
 
                         try
                         {
-                            _magazine.Pop()?.Invoke();
+                            _magazine.TryPop(out var action);
+                            action.Invoke();
                         }
-                        catch (InvalidOperationException)
+                        catch (NullReferenceException)
                         {
                             _completed = 1;
                         }
@@ -452,10 +460,12 @@ namespace ThreadGun
                 {
                     try
                     {
-                        _magazine.Pop()?.Invoke();
+                        _magazine.TryPop(out var action);
+                        action.Invoke();
                     }
-                    catch (InvalidOperationException)
+                    catch (NullReferenceException)
                     {
+                        _completed = 1;
                     }
                 });
                 _activeThreads.Add(thread);

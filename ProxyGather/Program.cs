@@ -9,7 +9,7 @@ using ThreadGun;
 
 namespace ProxyGather
 {
-    class Program
+    internal class Program
     {
         public static int ProxyType;
         public static List<string> ProxyList = new List<string>();
@@ -19,13 +19,16 @@ namespace ProxyGather
             while (ProxyType < 1 || ProxyType > 5)
             {
                 Console.Clear();
-                Console.WriteLine("What kind of proxy you needed?\r\n[1] SOCKS5\r\n[2] Https\r\n[3] Http\r\n[4] Http/Https\r\n[5] Everything");
+                Console.WriteLine(
+                    "What kind of proxy you needed?\r\n[1] SOCKS5\r\n[2] Https\r\n[3] Http\r\n[4] Http/Https\r\n[5] Everything");
                 try
                 {
-
                     ProxyType = int.Parse(Console.ReadLine() ?? "0");
                 }
-                catch { /* ignore */ }
+                catch
+                {
+                    /* ignore */
+                }
             }
 
             Gathering();
@@ -43,7 +46,8 @@ namespace ProxyGather
 
             new ThreadGun<string>(page =>
             {
-                foreach (var item in JArray.Parse(new RestClient(page).Execute(new RestRequest(Method.GET)).Content).Where(item => CheckProxyType(int.Parse(item["type"].ToString()))))
+                foreach (var item in JArray.Parse(new RestClient(page).Execute(new RestRequest(Method.GET)).Content)
+                    .Where(item => CheckProxyType(int.Parse(item["type"].ToString()))))
                     ProxyList.Add(item["addr"].ToString());
             }, pages, pages.Count).FillingMagazine().Start().Join();
         }
