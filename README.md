@@ -7,6 +7,7 @@ ThreadGun is a form of multithreading created for developers keen on building fa
 - Will be notify when process completed
 - Postpone the process
 - Join to process
+- Pause and resume process
 - Optimum perfomance
 - Easy [Installation](https://github.com/RexProg/ThreadGun#Installation) using [NuGet](http://nuget.org/packages/ThreadGun)
 
