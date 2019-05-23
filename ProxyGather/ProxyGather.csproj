@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ThreadGun\ThreadGun.csproj">
-      <Project>{aebde820-9228-449b-aa58-9f04673ad7ac}</Project>
+      <Project>{01592e75-7a3c-49fd-b47c-b1e05f98b384}</Project>
       <Name>ThreadGun</Name>
     </ProjectReference>
   </ItemGroup>

@@ -1,13 +1,9 @@
-﻿#region using
-
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-#endregion
 
 namespace ThreadGun
 {
@@ -19,19 +15,21 @@ namespace ThreadGun
             Exception exception);
 
         private readonly Action _action;
+        private readonly int _threadCount;
         private readonly Action<T> _actionT;
-        private readonly object _activeTasksLock = new object();
-        private readonly List<Thread> _activeThreads = new List<Thread>();
+        private readonly int _magazineCount;
         private readonly Func<T, Task> _func;
         private readonly IEnumerable<T> _inputs;
-        private readonly int _magazineCount;
-        private readonly int _threadCount;
-        private List<Task> _activeTasks = new List<Task>();
+        private readonly object _activeTasksLock = new object();
+        private readonly List<Thread> _activeThreads = new List<Thread>();
+        private readonly ManualResetEvent _statusEvent = new ManualResetEvent(true);
 
-        private int _completed;
-        private ConcurrentStack<Action> _magazine;
-        private Action _waitingCompletedAction;
         private int _waitingPeriod;
+        private Thread completedTaskThread;
+        private bool _completeCallbackCalled;
+        private Action _waitingCompletedAction;
+        private ConcurrentStack<Action> _magazine;
+        private List<Task> _activeTasks = new List<Task>();
 
         public ThreadGun(Func<T, Task> func, IEnumerable<T> inputs, int threadCount,
             CompletedDelegate completedEvent, ExceptionOccurredDelegate exceptionOccurredEvent)
@@ -120,6 +118,22 @@ namespace ThreadGun
             CompletedTask();
         }
 
+        public void Pause()
+        {
+            _statusEvent.Reset();
+        }
+
+        public void Resume()
+        {
+            _statusEvent.Set();
+
+            if (!_completeCallbackCalled
+               && completedTaskThread != null
+               && !completedTaskThread.IsAlive
+               && Completed != null)
+                (completedTaskThread = new Thread(CompletedTask)).Start();
+        }
+
         public void Wait(int millisecond)
         {
             _waitingPeriod = millisecond;
@@ -150,12 +164,7 @@ namespace ThreadGun
                             ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                         }
 
-                    if (_waitingPeriod != 0)
-                    {
-                        Thread.Sleep(_waitingPeriod);
-                        _waitingPeriod = 0;
-                        _waitingCompletedAction?.Invoke();
-                    }
+                    Wait();
 
                     try
                     {
@@ -164,7 +173,7 @@ namespace ThreadGun
                     }
                     catch (NullReferenceException)
                     {
-                        _completed = 1;
+                        IsCompleted = true;
                     }
                 }
 
@@ -188,12 +197,7 @@ namespace ThreadGun
                             ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                         }
 
-                    if (_waitingPeriod != 0)
-                    {
-                        Thread.Sleep(_waitingPeriod);
-                        _waitingPeriod = 0;
-                        _waitingCompletedAction?.Invoke();
-                    }
+                    Wait();
 
                     try
                     {
@@ -202,7 +206,7 @@ namespace ThreadGun
                     }
                     catch (NullReferenceException)
                     {
-                        _completed = 1;
+                        IsCompleted = true;
                     }
                 }
 
@@ -230,12 +234,7 @@ namespace ThreadGun
                         ExceptionOccurred?.Invoke(this, null, null, ex);
                     }
 
-                if (_waitingPeriod != 0)
-                {
-                    Thread.Sleep(_waitingPeriod);
-                    _waitingPeriod = 0;
-                    _waitingCompletedAction?.Invoke();
-                }
+                Wait();
 
                 try
                 {
@@ -244,7 +243,7 @@ namespace ThreadGun
                 }
                 catch (NullReferenceException)
                 {
-                    _completed = 1;
+                    IsCompleted = true;
                 }
             }
 
@@ -270,12 +269,7 @@ namespace ThreadGun
                         ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                     }
 
-                if (_waitingPeriod != 0)
-                {
-                    Thread.Sleep(_waitingPeriod);
-                    _waitingPeriod = 0;
-                    _waitingCompletedAction?.Invoke();
-                }
+                Wait();
 
                 try
                 {
@@ -284,7 +278,7 @@ namespace ThreadGun
                 }
                 catch (NullReferenceException)
                 {
-                    _completed = 1;
+                    IsCompleted = true;
                 }
             }
 
@@ -314,12 +308,7 @@ namespace ThreadGun
                                 ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                             }
 
-                        if (_waitingPeriod != 0)
-                        {
-                            Thread.Sleep(_waitingPeriod);
-                            _waitingPeriod = 0;
-                            _waitingCompletedAction?.Invoke();
-                        }
+                        Wait();
 
                         try
                         {
@@ -328,7 +317,7 @@ namespace ThreadGun
                         }
                         catch (NullReferenceException)
                         {
-                            _completed = 1;
+                            IsCompleted = true;
                         }
                     }
 
@@ -351,12 +340,7 @@ namespace ThreadGun
                             ExceptionOccurred?.Invoke(this, null, null, ex);
                         }
 
-                    if (_waitingPeriod != 0)
-                    {
-                        Thread.Sleep(_waitingPeriod);
-                        _waitingPeriod = 0;
-                        _waitingCompletedAction?.Invoke();
-                    }
+                    Wait();
 
                     try
                     {
@@ -365,7 +349,7 @@ namespace ThreadGun
                     }
                     catch (NullReferenceException)
                     {
-                        _completed = 1;
+                        IsCompleted = true;
                     }
                 }
 
@@ -392,12 +376,7 @@ namespace ThreadGun
                                 ExceptionOccurred?.Invoke(this, _inputs, input, ex);
                             }
 
-                        if (_waitingPeriod != 0)
-                        {
-                            Thread.Sleep(_waitingPeriod);
-                            _waitingPeriod = 0;
-                            _waitingCompletedAction?.Invoke();
-                        }
+                        Wait();
 
                         try
                         {
@@ -406,7 +385,7 @@ namespace ThreadGun
                         }
                         catch (NullReferenceException)
                         {
-                            _completed = 1;
+                            IsCompleted = true;
                         }
                     }
 
@@ -417,6 +396,20 @@ namespace ThreadGun
             return this;
         }
 
+        private void Wait()
+        {
+            _statusEvent.WaitOne();
+
+            if (_waitingPeriod != 0)
+            {
+                Thread.Sleep(_waitingPeriod);
+                _waitingPeriod = 0;
+                _waitingCompletedAction?.Invoke();
+            }
+
+        }
+
+        public bool IsCompleted { get; private set; }
 
         private void CompletedTask()
         {
@@ -431,10 +424,11 @@ namespace ThreadGun
                                   (at.Status != TaskStatus.WaitingToRun ||
                                    at.Status != TaskStatus.WaitingForActivation))
                         .ToList();
-                    if (_completed == 1 && _magazine.Count == 0 && _activeTasks.Count == 0)
+                    if (IsCompleted && _magazine.Count == 0 && _activeTasks.Count == 0)
                     {
                         foreach (var activeThread in _activeThreads) activeThread.Join();
                         Completed?.Invoke(_inputs);
+                        _completeCallbackCalled = true;
                         return;
                     }
                 }
@@ -465,7 +459,7 @@ namespace ThreadGun
                     }
                     catch (NullReferenceException)
                     {
-                        _completed = 1;
+                        IsCompleted = true;
                     }
                 });
                 _activeThreads.Add(thread);
@@ -473,7 +467,7 @@ namespace ThreadGun
             }
 
             if (Completed != null)
-                new Thread(CompletedTask).Start();
+                (completedTaskThread = new Thread(CompletedTask)).Start();
             return this;
         }
     }
